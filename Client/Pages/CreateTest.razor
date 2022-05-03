@@ -3,12 +3,12 @@
 @inject NavigationManager Navigation
 <h3>Test Exam</h3>
 
-<EditForm Model="Answer" OnValidSubmit="HandleValidSubmit">
+<EditForm OnValidSubmit="CreateField">
     <DataAnnotationsValidator />
 
     <div class="form-check group">
-        <label class="control-label">Question 1</label>
-        <InputText @bind-Value="q1" class="form-control" />
+        <label class="control-label">Number of questions:</label>
+        <InputNumber @bind-Value="formLength" class="form-control" />
     </div>
 
     <p></p>
@@ -17,11 +17,34 @@
     </button>
 </EditForm>
 
+<EditForm OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    @for (int i = 0; i <= formLength; i++)
+    {
+        <div class="form-check group">
+            <label class="control-label">Question +@i</label>
+            <InputText @bind-Value="questionName[i]" class="form-control" />
+
+            <label class="control-label">Input Type:</label>
+            <select class="control-label" @bind="questionType[i]">
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+            </select>
+        </div>
+        <p></p>
+    }
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Submit
+    </button>
+</EditForm>
+
 @code {
-    private Answer Answer = new Answer();
-    private string q1;
-    private string q2;
-    private string q3;
+    private Exam Exam = new Exam();
+    private Question[] QuestionArray;
+    private int formLength;
+    private string[] questionName;
+    private string[] questionType;
 
     private async void HandleValidSubmit()
     {
@@ -37,6 +60,11 @@
         {
 
         }
+
+    }
+
+    private async void CreateField()
+    {
 
     }
 }
