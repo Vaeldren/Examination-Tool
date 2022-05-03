@@ -6,7 +6,6 @@
 <h3>Test Exam</h3>
 
 <form OnValidSubmit="CreateField">
-    <DataAnnotationsValidator />
 
     <div class="form-check group">
         <label class="control-label">Number of questions:</label>
@@ -19,13 +18,16 @@
     </button>
 </form>
 
-@*<form OnValidSubmit="HandleValidSubmit">
+@if (IsFormVisible)
+{
+   Question Question = new Question();
+<EditForm Model=@Question OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
 
         @for (int i = 0; i <= formLength; i++)
         {
             <div class="form-check group">
-                <label class="control-label">Question +@i</label>
+                <label class="control-label">Question @i</label>
                 <InputText @bind-Value="questionName[i]" class="form-control" />
 
                 <label class="control-label">Input Type:</label>
@@ -39,7 +41,8 @@
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-save"></i> Submit
         </button>
-    </form>*@
+    </EditForm>
+}
 
 @code {
     private Exam Exam = new Exam();
@@ -47,6 +50,7 @@
     private int formLength = 0;
     private string[] questionName;
     private string[] questionType;
+    bool IsFormVisible = false;
 
     private async void HandleValidSubmit()
     {
@@ -67,6 +71,7 @@
 
     private async void CreateField()
     {
-
+        IsFormVisible = true;
+        StateHasChanged();
     }
 }
