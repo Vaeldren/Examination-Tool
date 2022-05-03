@@ -1,9 +1,11 @@
 ﻿@page "/createtest"
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@attribute [Authorize]
+
 <h3>Test Exam</h3>
 
-<EditForm OnValidSubmit="CreateField">
+<form OnValidSubmit="CreateField">
     <DataAnnotationsValidator />
 
     <div class="form-check group">
@@ -15,34 +17,34 @@
     <button type="submit" class="btn btn-primary">
         <i class="fas fa-save"></i> Submit
     </button>
-</EditForm>
+</form>
 
-<EditForm OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
+@*<form OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
 
-    @for (int i = 0; i <= formLength; i++)
-    {
-        <div class="form-check group">
-            <label class="control-label">Question +@i</label>
-            <InputText @bind-Value="questionName[i]" class="form-control" />
+        @for (int i = 0; i <= formLength; i++)
+        {
+            <div class="form-check group">
+                <label class="control-label">Question +@i</label>
+                <InputText @bind-Value="questionName[i]" class="form-control" />
 
-            <label class="control-label">Input Type:</label>
-            <select class="control-label" @bind="questionType[i]">
-                <option value="text">Text</option>
-                <option value="image">Image</option>
-            </select>
-        </div>
-        <p></p>
-    }
-    <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save"></i> Submit
-    </button>
-</EditForm>
+                <label class="control-label">Input Type:</label>
+                <select class="control-label" @bind="questionType[i]">
+                    <option value="text">Text</option>
+                    <option value="image">Image</option>
+                </select>
+            </div>
+            <p></p>
+        }
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Submit
+        </button>
+    </form>*@
 
 @code {
     private Exam Exam = new Exam();
     private Question[] QuestionArray;
-    private int formLength;
+    private int formLength = 0;
     private string[] questionName;
     private string[] questionType;
 

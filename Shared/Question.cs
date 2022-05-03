@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Coursework_Prototype.Shared
+namespace FinalYearProject.Shared
 {
     public class Question
     {
