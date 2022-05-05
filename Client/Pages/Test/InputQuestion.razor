@@ -1,0 +1,76 @@
+﻿@page "/inputquestion/{Id:guid}"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<h3>Test Exam</h3>
+
+<EditForm Model="Question" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    @for (int i = 0; i < Exam.ExamQuestions.Count; i++)
+    {
+        <div class="form-check group">
+            <label class="control-label">Question @i</label>
+            <InputText @bind-Value="questionName[i]" class="form-control" />
+
+            <label class="control-label">Input Type:</label>
+            <select class="control-label" @bind="questionType[i]">
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+            </select>
+        </div>
+        <p></p>
+    }
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Submit
+    </button>
+</EditForm>
+
+@code {
+    Question Question = new Question();
+    private Exam Exam = new Exam();
+    private Question[] QuestionArray;
+    private int formLength = 0;
+    private string[] questionName;
+    private string[] questionType;
+    bool IsFormVisible = false;
+    [Parameter] public Guid Id { get; set; }
+
+    private async void OnInitializedAsync()
+    {
+        try
+        {
+            //use {id} to assign it correctly
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    private async void HandleValidSubmit()
+    {
+        try
+        {
+            //stuff everything into exam and then put it
+            var response = await Http.PutAsJsonAsync($"/api/Exams/{Exam.ExamId}", Exam);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+
+}

@@ -1,0 +1,48 @@
+﻿@page "/createtest"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<h3>Test Exam</h3>
+
+<form O>
+
+    <div class="form-check group">
+        <label class="control-label">Number of questions:</label>
+        <input type="number" @bind-value="formLength" class="form-control"/>
+    </div>
+
+    <p></p>
+    <button class="btn btn-primary" onclick="buttonSubmit()">
+        <i class="fas fa-save"></i> Create question fields
+    </button>
+</form>
+
+@code {
+    private Exam Exam { get; set; } = new Exam();
+    private int formLength;
+
+    private async void buttonSubmit()
+    {
+        try
+        {
+            Exam.ExamQuestions = new List<Question>(new Question[formLength]);
+            Exam.ExamId = new Guid();
+            var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var exam = JsonConvert.DeserializeObject<Exam>(content);
+            Navigation.NavigateTo($"inputquestion/{exam.ExamId}");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+
+}
