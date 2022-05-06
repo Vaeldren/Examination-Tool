@@ -5,18 +5,18 @@
 
 <h4>Create a test</h4>
 <br />
-<EditForm Model="Exam" OnSubmit="HandleValidSubmit">
+<EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
 
     <div class="form-check group">
         <label class="control-label">Exam name</label>
-        <InputText @bind-Value="Exam.ExamName" class="form-control" />
+        <InputText @bind-Value="@Exam.ExamName" class="form-control" />
         <ValidationMessage For="@(() => Exam.ExamName)" />
     </div>
     <br />
     <div class="form-check group">
         <label class="control-label">Exam creator</label>
-        <select @bind="Exam.TeacherId" class="form-control">
+        <select @bind="@Exam.TeacherId" class="form-control">
             <option value=""></option>
             @foreach (var teach in teachers)
             {
@@ -31,11 +31,11 @@
     {
         <div class="form-check group">
             <label class="control-label">Question</label>
-            <InputText @bind-Value="quest.Text" class="form-control" />
+            <InputText @bind-Value="@quest.Text" class="form-control" />
             <ValidationMessage For="@(() => quest.Text)" />
             <br />
             <label class="control-label">Input Type:</label>
-            <select class="control-label" @bind="quest.Type">
+            <select class="control-label" @bind="@quest.Type">
                 <option value="text">Text</option>
                 <option value="image">Image</option>
             </select>
@@ -43,7 +43,7 @@
             <br />
             <br />
             <label class="control-label">Mark</label>
-            <InputNumber @bind-Value="quest.Mark" class="form-control" />
+            <InputNumber @bind-Value="@quest.Mark" class="form-control" />
             <br />
         </div>
         <br />
@@ -64,25 +64,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        Random code = new Random();
+        Exam.ExamCode = code.Next(1000, 9999);
+        teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
+        for(int i = 0; i < formLength; i++)
         {
-            Random code = new Random();
-            Exam.ExamCode = code.Next(1000, 9999);
-            teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
-            for(int i = 0; i < formLength; i++)
-            {
-                Question Question = new Question();
-                Question.ExamId = Exam.ExamId;
-                questionList.Add(Question);
-            }
-        }
-        catch (AccessTokenNotAvailableException exception)
-        {
-            exception.Redirect();
-        }
-        catch (Exception e)
-        {
-
+            Question Question = new Question();
+            Question.ExamId = Exam.ExamId;
+            questionList.Add(Question);
         }
     }
 
@@ -90,16 +79,27 @@
     {
         try
         {
-            foreach(var quest in questionList)
+            @*foreach(var quest in questionList)
             {
-                var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
-                response1.EnsureSuccessStatusCode();
-                var content1 = await response1.Content.ReadAsStringAsync();
-                var project1 = JsonConvert.DeserializeObject<Question>(content1);
-            }
+                try
+                {
+                    var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
+                    response1.EnsureSuccessStatusCode();
+                    var content1 = await response1.Content.ReadAsStringAsync();
+                    var project1 = JsonConvert.DeserializeObject<Question>(content1);
+                }
+                catch (AccessTokenNotAvailableException exception)
+                {
+                    exception.Redirect();
+                }
+                catch (Exception e)
+                {
+
+                }
+            }*@
             //stuff everything into exam and then post it
-            Exam.ExamQuestions = questionList;
-            var response = await Http.PostAsJsonAsync($"/api/Exams", Exam);
+            @*Exam.ExamQuestions = questionList;*@
+            var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             var project = JsonConvert.DeserializeObject<Exam>(content);
