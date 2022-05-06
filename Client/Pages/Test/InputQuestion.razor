@@ -5,7 +5,7 @@
 
 <h4>Create a test</h4>
 <br />
-<EditForm Model="Exam" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="Exam" OnSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
 
     <div class="form-check group">
@@ -90,10 +90,20 @@
     {
         try
         {
+            foreach(var quest in questionList)
+            {
+                var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
+                response1.EnsureSuccessStatusCode();
+                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Question>(content1);
+            }
             //stuff everything into exam and then post it
             Exam.ExamQuestions = questionList;
             var response = await Http.PostAsJsonAsync($"/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var project = JsonConvert.DeserializeObject<Exam>(content);
+            Navigation.NavigateTo("/");
         }
         catch (AccessTokenNotAvailableException exception)
         {

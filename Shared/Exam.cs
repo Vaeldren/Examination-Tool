@@ -15,7 +15,6 @@ namespace FinalYearProject.Shared
         public int ExamCode { get; set; }
         public string ExamName { get; set; }
         public List<Question> ExamQuestions { get; set; }
-        public int Total;
 
     }
 }
