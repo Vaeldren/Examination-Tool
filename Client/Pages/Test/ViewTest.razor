@@ -1,0 +1,86 @@
+﻿@page "/test/viewtest"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<h4>View tests</h4>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Exam Name</th>
+                <th>Teacher</th>
+                <th>Exam Code</th>
+                <th>Question Total</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var exam in Exams)
+            {
+            <tr>
+                <td>@exam.ExamName</td>
+                <td>
+                    @foreach (var teach in Teachers)
+                    {
+                        if (teach.TeacherId == exam.TeacherId)
+                        {
+                            @teach.FirstName  @teach.LastName
+                        }
+                    }
+                </td>
+                <td>@exam.ExamCode</td>
+                <td>@exam.QuestionAmount</td>
+                <td><a class="btn btn-outline-secondary" href="">Edit</a></td>
+                <td><a class="btn btn-outline-danger" @onclick="@(() => ShowModal(Exam.ExamId))">Delete</a></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p>
+    <a class="btn btn-primary" href="/employees/create">Create</a>
+</p>
+
+@code {
+    private List<Teacher> Teachers = new List<Teacher>();
+    private List<Exam> Exams = new List<Exam>();
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+
+    async Task ShowModal(Guid id)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(DeleteTest.Id), id);
+        var formModal = Modal.Show<DeleteTest>("Delete Exam", parameters);
+
+        var result = await formModal.Result;
+
+        if (!result.Cancelled)
+        {
+            Navigation.NavigateTo("/test/viewtest");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
+
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+}

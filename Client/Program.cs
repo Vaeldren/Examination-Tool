@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +26,8 @@ namespace FinalYearProject.Client
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("FinalYearProject.ServerAPI"));
 
             builder.Services.AddApiAuthorization();
+
+            builder.Services.AddBlazoredModal();
 
             await builder.Build().RunAsync();
         }

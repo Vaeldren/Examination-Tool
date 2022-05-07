@@ -1,4 +1,4 @@
-﻿@page "/inputquestion/{formLength:int}"
+﻿@page "/test/inputquestion/{formLength:int}"
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @attribute [Authorize]
@@ -88,6 +88,7 @@
         try
         {
             //stuff everything into exam and then post it
+            Exam.QuestionAmount = formLength;
             var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();

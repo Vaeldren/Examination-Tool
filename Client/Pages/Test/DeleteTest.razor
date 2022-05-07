@@ -1,0 +1,58 @@
+﻿@page "/test/deletetest"
+
+@attribute [Authorize]
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+
+<h1> Please confirm you want to delete the following project?</h1>
+
+<h4>exams Name</h4>
+<p>@Exam.ExamName</p>
+
+<h4>Assigned teacher</h4>
+<p>@Teacher.FirstName @Teacher.LastName </p>
+
+<button class="btn btn-danger" @onclick="DeleteExam">Delete</button>
+
+@code{
+    [Parameter] public Guid Id { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private Exam Exam { get; set; } = new Exam();
+    private Teacher Teacher { get; set; } = new Teacher();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
+            Teacher = await Http.GetFromJsonAsync<Teacher>($"/api/Teachers/{Exam.TeacherId}");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    private async void DeleteExam()
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"/api/Exams/{Id}");
+            response.EnsureSuccessStatusCode();
+            ModalInstance.Close(ModalResult.Ok("Success"));
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+}
