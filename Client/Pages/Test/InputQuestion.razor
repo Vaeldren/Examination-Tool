@@ -16,29 +16,34 @@
     <br />
     <div class="form-check group">
         <label class="control-label">Exam creator</label>
-        <select @bind="@Exam.TeacherId" class="form-control">
-            <option value=""></option>
+        <InputSelect @bind-Value="@Exam.TeacherId" class="form-control">
+            <option>-------</option>
             @foreach (var teach in teachers)
             {
                 <option value="@teach.TeacherId">@teach.FirstName @teach.LastName</option>
             }
-        </select>
+        </InputSelect>
         <ValidationMessage For="@(() => Exam.TeacherId)" />
     </div>
     <br />
+    <div class="form-check group">
+    <label class="control-label">Exam code: @Exam.ExamCode</label>
+    </div>
     <br />
     @foreach (var quest in questionList)
     {
+
         <div class="form-check group">
             <label class="control-label">Question</label>
             <InputText @bind-Value="@quest.Text" class="form-control" />
             <ValidationMessage For="@(() => quest.Text)" />
             <br />
             <label class="control-label">Input Type:</label>
-            <select class="control-label" @bind="@quest.Type">
+            <InputSelect class="control-label" @bind-Value="@quest.Type">
+                <option>-------</option>
                 <option value="text">Text</option>
                 <option value="image">Image</option>
-            </select>
+            </InputSelect>
             <ValidationMessage For="@(() => quest.Type)" />
             <br />
             <br />
@@ -56,7 +61,7 @@
 </EditForm>
 
 @code {
-    private Exam Exam { get; set; } = new Exam();
+    private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
     private List<Teacher> teachers = new List<Teacher>();
     [Parameter] public int formLength { get; set; }
@@ -65,11 +70,14 @@
     protected override async Task OnInitializedAsync()
     {
         Random code = new Random();
-        Exam.ExamCode = code.Next(1000, 9999);
+        Exam.ExamId = Guid.NewGuid();
+        Exam.ExamCode = code.Next(1000000, 9999999);
         teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
         for(int i = 0; i < formLength; i++)
         {
+
             Question Question = new Question();
+            Question.QuestionId = Guid.NewGuid();
             Question.ExamId = Exam.ExamId;
             questionList.Add(Question);
         }
@@ -79,31 +87,20 @@
     {
         try
         {
-            @*foreach(var quest in questionList)
-            {
-                try
-                {
-                    var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
-                    response1.EnsureSuccessStatusCode();
-                    var content1 = await response1.Content.ReadAsStringAsync();
-                    var project1 = JsonConvert.DeserializeObject<Question>(content1);
-                }
-                catch (AccessTokenNotAvailableException exception)
-                {
-                    exception.Redirect();
-                }
-                catch (Exception e)
-                {
-
-                }
-            }*@
             //stuff everything into exam and then post it
-            @*Exam.ExamQuestions = questionList;*@
             var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             var project = JsonConvert.DeserializeObject<Exam>(content);
-            Navigation.NavigateTo("/");
+            foreach (var quest in questionList)
+            {
+                var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
+                response1.EnsureSuccessStatusCode();
+                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Question>(content1);
+
+            }
+            Navigation.NavigateTo("/createtest");
         }
         catch (AccessTokenNotAvailableException exception)
         {
