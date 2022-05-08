@@ -1,7 +1,8 @@
-﻿@page "/test/inputquestion/{formLength:int}"
-@inject HttpClient Http
-@inject NavigationManager Navigation
+﻿@page "/test/edittest/{Id:guid}"
 @attribute [Authorize]
+@inject NavigationManager Navigation
+@inject HttpClient Http
+<h3>Edit Employee</h3>
 
 <h4>Create a test</h4>
 <br />
@@ -27,7 +28,7 @@
     </div>
     <br />
     <div class="form-check group">
-    <label class="control-label">Exam code: @Exam.ExamCode</label>
+        <label class="control-label">Exam code: @Exam.ExamCode</label>
     </div>
     <br />
     @foreach (var quest in questionList)
@@ -54,7 +55,15 @@
         <br />
         <br />
     }
-    <button type="submit" class="btn btn-primary">
+    <button type="button" class="btn btn-primary" style="float:left;" @onclick="AddField">
+        <i class="fas fa-save"></i> Add Question
+    </button>
+    <button type="button" class="btn btn-primary" style="float:right" @onclick="RemoveField">
+        <i class="fas fa-save"></i> Remove Question
+    </button>
+    <br />
+    <br />
+    <button type="submit" class="btn btn-primary" style="float:left">
         <i class="fas fa-save"></i> Submit
     </button>
     <br />
@@ -64,44 +73,73 @@
     private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
     private List<Teacher> teachers = new List<Teacher>();
-    [Parameter] public int formLength { get; set; }
+    [Parameter] public Guid Id { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
-        Random code = new Random();
-        Exam.ExamId = Guid.NewGuid();
-        Exam.ExamCode = code.Next(1000000, 9999999);
-        teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
-        for(int i = 0; i < formLength; i++)
+        try
+        {
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
+            teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
+            questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
+            foreach (var quest in questionList)
+            {
+                if(quest.ExamId != Exam.ExamId)
+                {
+                    questionList.Remove(quest);
+                }
+            }
+
+
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
         {
 
-            Question Question = new Question();
-            Question.QuestionId = Guid.NewGuid();
-            Question.ExamId = Exam.ExamId;
-            questionList.Add(Question);
         }
+    }
+
+    private void RemoveField()
+    {
+        if (questionList.Count > 1)
+        {
+            questionList.RemoveAt(questionList.Count() - 1);
+            StateHasChanged();
+        }
+    }
+
+    private void AddField()
+    {
+        Question Question = new Question();
+        Question.QuestionId = Guid.NewGuid();
+        Question.ExamId = Exam.ExamId;
+        questionList.Add(Question);
+        StateHasChanged();
     }
 
     private async void HandleValidSubmit()
     {
         try
         {
+            Exam.QuestionAmount = questionList.Count();
             //stuff everything into exam and then post it
-            Exam.QuestionAmount = formLength;
-            var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
+            var response = await Http.PutAsJsonAsync($"/api/Exams/{Exam.ExamId}", Exam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             var project = JsonConvert.DeserializeObject<Exam>(content);
             foreach (var quest in questionList)
             {
-                var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
+                var response1 = await Http.PutAsJsonAsync($"/api/Questions/{quest.QuestionId}", quest);
                 response1.EnsureSuccessStatusCode();
                 var content1 = await response1.Content.ReadAsStringAsync();
                 var project1 = JsonConvert.DeserializeObject<Question>(content1);
 
             }
-            Navigation.NavigateTo("/test/createtest");
+            Navigation.NavigateTo("test/viewtest");
         }
         catch (AccessTokenNotAvailableException exception)
         {

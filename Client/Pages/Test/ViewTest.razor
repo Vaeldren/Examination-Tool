@@ -33,8 +33,8 @@
                 </td>
                 <td>@exam.ExamCode</td>
                 <td>@exam.QuestionAmount</td>
-                <td><a class="btn btn-outline-secondary" href="">Edit</a></td>
-                <td><a class="btn btn-outline-danger" @onclick="@(() => ShowModal(Exam.ExamId))">Delete</a></td>
+                <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
+                <td><a class="btn btn-outline-danger" href="/test/deletetest/@exam.ExamId">Delete</a></td>
             </tr>
             }
         </tbody>
@@ -42,28 +42,12 @@
 </div>
 
 <p>
-    <a class="btn btn-primary" href="/employees/create">Create</a>
+    <a class="btn btn-primary" href="/exam/create">Create</a>
 </p>
 
 @code {
     private List<Teacher> Teachers = new List<Teacher>();
     private List<Exam> Exams = new List<Exam>();
-    [CascadingParameter] public IModalService Modal { get; set; }
-
-
-    async Task ShowModal(Guid id)
-    {
-        var parameters = new ModalParameters();
-        parameters.Add(nameof(DeleteTest.Id), id);
-        var formModal = Modal.Show<DeleteTest>("Delete Exam", parameters);
-
-        var result = await formModal.Result;
-
-        if (!result.Cancelled)
-        {
-            Navigation.NavigateTo("/test/viewtest");
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
