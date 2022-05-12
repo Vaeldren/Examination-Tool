@@ -1,8 +1,8 @@
-﻿@page "/test/viewtest"
+﻿@page "/student/viewsubmission"
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider _authenticationStateProvider
-@attribute [Authorize(Roles = "Administrators, Teachers")]
+@attribute [Authorize(Roles = "Administrators, Students")]
 
 <h4>View your tests</h4>
 
@@ -13,30 +13,34 @@
                 <th>Exam Name</th>
                 <th>Exam Code</th>
                 <th>Question Total</th>
-                <th></th>
-                <th></th>
+                <th>Date Submitted</th>
+                <th>Mark</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var exam in Exams)
+            @foreach (var StudentExam in StudentExams)
             {
-                <tr>
-                    <td>@exam.ExamName</td>
-                    <td>@exam.ExamCode</td>
-                    <td>@exam.QuestionAmount</td>
-                    <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
-                    <td><a class="btn btn-outline-danger" href="/test/deletetest/@exam.ExamId">Delete</a></td>
-                </tr>
+
+            <tr>
+                @foreach (var ExamDummy in Exams)
+                {
+                    if (ExamDummy.ExamId == StudentExam.ExamId)
+                    {
+                        <td>@ExamDummy.ExamName</td>
+                        <td>@ExamDummy.ExamCode</td>
+                        <td>@ExamDummy.QuestionAmount</td>
+                        <td>@StudentExam.Date.ToShortDateString()</td>
+                        <td>@StudentExam.Mark</td>
+                    }
+                }
+            </tr>
             }
         </tbody>
     </table>
 </div>
 
-<p>
-    <a class="btn btn-primary" href="/exam/create">Create</a>
-</p>
-
 @code {
+    private List<StudentExam> StudentExams = new List<StudentExam>();
     private List<Exam> Exams = new List<Exam>();
 
     protected override async Task OnInitializedAsync()
@@ -46,12 +50,12 @@
         try
         {
 
-            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
-            foreach (var ex in Exams)
+            StudentExams = await Http.GetFromJsonAsync<List<StudentExam>>("/api/StudentExams");
+            foreach (var ex in StudentExams)
             {
-                if (ex.TeacherId != Guid.Parse(UserId))
+                if (ex.StudentId != Guid.Parse(UserId))
                 {
-                    Exams.Remove(ex);
+                    StudentExams.Remove(ex);
                 }
             }
 

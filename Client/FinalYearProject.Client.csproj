@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\StudentExam\**" />
+    <Content Remove="Pages\StudentExam\**" />
+    <EmbeddedResource Remove="Pages\StudentExam\**" />
+    <None Remove="Pages\StudentExam\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.Modal" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.10" PrivateAssets="all" />
@@ -16,10 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\FinalYearProject.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Pages\StudentExam\" />
   </ItemGroup>
 
 </Project>

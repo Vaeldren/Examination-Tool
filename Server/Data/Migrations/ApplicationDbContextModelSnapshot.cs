@@ -168,10 +168,13 @@ namespace FinalYearProject.Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("ExamId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Mark")
+                    b.Property<int?>("Mark")
                         .HasColumnType("int");
 
                     b.Property<Guid>("StudentId")

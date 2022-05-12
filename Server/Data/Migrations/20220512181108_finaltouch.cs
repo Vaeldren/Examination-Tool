@@ -2,7 +2,7 @@
 
 namespace FinalYearProject.Server.Data.Migrations
 {
-    public partial class cleanv2entity : Migration
+    public partial class finaltouch : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

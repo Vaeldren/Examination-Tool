@@ -2,7 +2,7 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider _authenticationStateProvider
-@attribute [Authorize(Roles = "Administrators, Teachers")]
+@attribute [Authorize(Roles = "Administrators, Students")]
 
 <h4>Take test</h4>
 <br />
@@ -16,11 +16,14 @@
     @foreach (var quest in questionList)
     {
         <div class="form-check group">
-            <label class="control-label">@count  </label>
+            @qtext = $"Question {@count}: {@quest.Text}";
+            <label class="control-label">@qtext</label>
             <br />
             <br />
             <InputText @bind-Value="answerList[count].Text" class="form-control" />
             @answerList[count].QuestionId = quest.QuestionId;
+            <br />
+            <label class="control-label">Mark: @quest.Mark</label>
             @count += 1
             <br />
         </div>
@@ -39,6 +42,7 @@
     private List<Question> questionList = new List<Question>();
     private List<Answer> answerList = new List<Answer>();
     public int count = 0;
+    private String qtext; 
     [Parameter] public Guid Id { get; set; }
 
 
@@ -75,6 +79,7 @@
     {
         try
         {
+            StudentExam.Date = DateTime.Now;
             var response = await Http.PostAsJsonAsync("/api/StudentExams", StudentExam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();

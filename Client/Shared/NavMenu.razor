@@ -12,21 +12,34 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Dashboard
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="/test/viewtest">
-                <span class="oi oi-plus" aria-hidden="true"></span> View Test
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
+        <AuthorizeView Roles="Administrators,Teachers">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="/test/viewtest">
+                    <span class="oi oi-plus" aria-hidden="true"></span> View Tests
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Administrators,Teachers">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="/test/marktest">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Mark Test
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Administrators,Students">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="/student/entercode">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Enter Code
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Administrators,Students">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="/student/entercode">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> View Submissions
+                </NavLink>
+            </li>
+        </AuthorizeView>
     </ul>
 </div>
 
@@ -39,4 +52,8 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+}
 }

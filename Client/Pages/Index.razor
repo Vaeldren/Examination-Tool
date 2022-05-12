@@ -1,10 +1,4 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization;
-<AuthorizeView Roles="@ADMINISTRATION_ROLE">
 
-</AuthorizeView>
-@code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
-    string ADMINISTRATION_ROLE = "Administrators";
-}
+<p>Welcome to the Examination Tool. Please use the buttons on the left to navigate this website.</p>

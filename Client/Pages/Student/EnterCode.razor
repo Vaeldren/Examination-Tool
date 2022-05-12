@@ -3,7 +3,7 @@
 @inject NavigationManager Navigation
 @attribute [Authorize(Roles = "Administrators, Students")]
 
-<h5>Create a test</h5>
+<h5>Take a test</h5>
 <br />
 
 <EditForm Model="Exam" OnSubmit="buttonSubmit">
@@ -20,14 +20,25 @@
 </EditForm>
 
 @code {
+    private List<Exam> Exams { get; set; } = new List<Exam>();
     private Exam Exam { get; set; } = new Exam();
     private int questionNum;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
+    }
 
     private async void buttonSubmit()
     {
         try
         {
-            Navigation.NavigateTo($"/test/{questionNum}");
+            foreach (var ex in Exams)
+            {
+                if (ex.ExamCode == questionNum) {
+                    Navigation.NavigateTo($"/test/taketest/{questionNum}");
+                }
+            }
         }
         catch (AccessTokenNotAvailableException exception)
         {

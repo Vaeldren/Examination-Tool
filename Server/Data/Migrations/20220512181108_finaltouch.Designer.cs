@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinalYearProject.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220506150614_AddUpdatedEntity")]
-    partial class AddUpdatedEntity
+    [Migration("20220512181108_finaltouch")]
+    partial class finaltouch
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,6 +40,9 @@ namespace FinalYearProject.Server.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -62,6 +65,9 @@ namespace FinalYearProject.Server.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("SecondName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -101,9 +107,6 @@ namespace FinalYearProject.Server.Data.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("StudentExamSEId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -111,8 +114,6 @@ namespace FinalYearProject.Server.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AnswerId");
-
-                    b.HasIndex("StudentExamSEId");
 
                     b.ToTable("Answers");
                 });
@@ -128,6 +129,9 @@ namespace FinalYearProject.Server.Data.Migrations
 
                     b.Property<string>("ExamName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QuestionAmount")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("TeacherId")
                         .HasColumnType("uniqueidentifier");
@@ -157,26 +161,7 @@ namespace FinalYearProject.Server.Data.Migrations
 
                     b.HasKey("QuestionId");
 
-                    b.HasIndex("ExamId");
-
                     b.ToTable("Questions");
-                });
-
-            modelBuilder.Entity("FinalYearProject.Shared.Student", b =>
-                {
-                    b.Property<Guid>("StudentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StudentId");
-
-                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("FinalYearProject.Shared.StudentExam", b =>
@@ -185,10 +170,13 @@ namespace FinalYearProject.Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("ExamId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Mark")
+                    b.Property<int?>("Mark")
                         .HasColumnType("int");
 
                     b.Property<Guid>("StudentId")
@@ -197,23 +185,6 @@ namespace FinalYearProject.Server.Data.Migrations
                     b.HasKey("SEId");
 
                     b.ToTable("StudentExams");
-                });
-
-            modelBuilder.Entity("FinalYearProject.Shared.Teacher", b =>
-                {
-                    b.Property<Guid>("TeacherId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TeacherId");
-
-                    b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
@@ -454,22 +425,6 @@ namespace FinalYearProject.Server.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("FinalYearProject.Shared.Answer", b =>
-                {
-                    b.HasOne("FinalYearProject.Shared.StudentExam", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("StudentExamSEId");
-                });
-
-            modelBuilder.Entity("FinalYearProject.Shared.Question", b =>
-                {
-                    b.HasOne("FinalYearProject.Shared.Exam", null)
-                        .WithMany("ExamQuestions")
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -519,16 +474,6 @@ namespace FinalYearProject.Server.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("FinalYearProject.Shared.Exam", b =>
-                {
-                    b.Navigation("ExamQuestions");
-                });
-
-            modelBuilder.Entity("FinalYearProject.Shared.StudentExam", b =>
-                {
-                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }
