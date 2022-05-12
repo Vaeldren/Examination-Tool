@@ -1,5 +1,5 @@
 ﻿@page "/test/edittest/{Id:guid}"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Administrators")]
 @inject NavigationManager Navigation
 @inject HttpClient Http
 <h3>Edit Employee</h3>
@@ -85,7 +85,7 @@
             questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
             foreach (var quest in questionList)
             {
-                if(quest.ExamId != Exam.ExamId)
+                if (quest.ExamId != Exam.ExamId)
                 {
                     questionList.Remove(quest);
                 }

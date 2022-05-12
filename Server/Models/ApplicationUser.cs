@@ -8,5 +8,7 @@ namespace FinalYearProject.Server.Models
 {
     public class ApplicationUser : IdentityUser
     {
+        public string FirstName { get; internal set; }
+        public string SecondName { get; internal set; }
     }
 }

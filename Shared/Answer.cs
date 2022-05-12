@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,10 +12,15 @@ namespace FinalYearProject.Shared
     {
         [Key]
         public Guid AnswerId { get; set; }
-        public Guid StudentId { get; set; }
+        public IdentityUser Student { get; set; }
         public Guid ExamId { get; set; }
         public Guid QuestionId { get; set; }
         public  string Text { get; set; }
         public int Mark { get; set; }
+
+        public Answer()
+        {
+            AnswerId = Guid.NewGuid();
+        }
     }
 }

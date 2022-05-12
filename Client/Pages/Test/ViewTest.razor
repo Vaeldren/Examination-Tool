@@ -1,7 +1,7 @@
 ﻿@page "/test/viewtest"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Administrators")]
 
 <h4>View tests</h4>
 
@@ -20,22 +20,22 @@
         <tbody>
             @foreach (var exam in Exams)
             {
-            <tr>
-                <td>@exam.ExamName</td>
-                <td>
-                    @foreach (var teach in Teachers)
-                    {
-                        if (teach.TeacherId == exam.TeacherId)
+                <tr>
+                    <td>@exam.ExamName</td>
+                    <td>
+                        @foreach (var teach in Teachers)
                         {
-                            @teach.FirstName  @teach.LastName
+                            if (teach.TeacherId == exam.TeacherId)
+                            {
+                                @teach.FirstName @teach.LastName
+                            }
                         }
-                    }
-                </td>
-                <td>@exam.ExamCode</td>
-                <td>@exam.QuestionAmount</td>
-                <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
-                <td><a class="btn btn-outline-danger" href="/test/deletetest/@exam.ExamId">Delete</a></td>
-            </tr>
+                    </td>
+                    <td>@exam.ExamCode</td>
+                    <td>@exam.QuestionAmount</td>
+                    <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
+                    <td><a class="btn btn-outline-danger" href="/test/deletetest/@exam.ExamId">Delete</a></td>
+                </tr>
             }
         </tbody>
     </table>
@@ -46,14 +46,13 @@
 </p>
 
 @code {
-    private List<Teacher> Teachers = new List<Teacher>();
     private List<Exam> Exams = new List<Exam>();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
+
             Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
 
         }

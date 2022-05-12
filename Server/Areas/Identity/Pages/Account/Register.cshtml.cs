@@ -39,9 +39,18 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
         public class InputModel
         {
             [Required]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [Display(Name = "Surname")]
+            public string SecondName { get; set; }
+
+            [Required]
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
+
             [Required]
             [StringLength(100, ErrorMessage =
                 "The {0} must be at least {2} and at max {1} characters long.",
@@ -49,6 +58,7 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
+
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage =
@@ -74,7 +84,9 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
                     new ApplicationUser
                     {
                         UserName = Input.Email,
-                        Email = Input.Email
+                        Email = Input.Email,
+                        FirstName = Input.FirstName,
+                        SecondName = Input.SecondName
                     };
                 var result =
                     await _userManager.CreateAsync(user, Input.Password);
@@ -89,14 +101,42 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
                     if (RoleResult == null)
                     {
                         // Create ADMINISTRATION_ROLE Role
-                        await _roleManager.CreateAsync(
-                            new IdentityRole(ADMINISTRATION_ROLE));
+                        await _roleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
                     }
+
+                    var RoleResult2 = await _roleManager.FindByNameAsync("Users");
+                    if (RoleResult2 == null)
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("Users"));
+                    }
+
+                    var RoleResult3 = await _roleManager.FindByNameAsync("Teachers");
+                    if (RoleResult3 == null)
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("Teachers"));
+                    }
+
                     if (user.UserName.ToLower() == ADMINISTRATOR_USERNAME.ToLower())
+                        //if name matches admin@email
                     {
                         // Put admin in Administrator role
                         await _userManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
                     }
+
+                    else if (user.UserName.ToLower() == "teacher@email")
+                    //if name matches teacher@email
+                    {
+                        // Put admin in Administrator role
+                        await _userManager.AddToRoleAsync(user, "Teachers");
+                    }
+
+                    else
+                    {
+                        // Put admin in Administrator role
+                        await _userManager.AddToRoleAsync(user, "Users");
+                    }
+
+
                     // Log user in
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
