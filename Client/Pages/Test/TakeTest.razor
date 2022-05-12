@@ -1,6 +1,7 @@
 ﻿@page "/test/taketest/{Id:guid}"
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider _authenticationStateProvider
 @attribute [Authorize(Roles = "Administrators, Teachers")]
 
 <h4>Take test</h4>
@@ -15,7 +16,7 @@
     @foreach (var quest in questionList)
     {
         <div class="form-check group">
-            <label class="control-label">Question</label>
+            <label class="control-label">@count  </label>
             <br />
             <br />
             <InputText @bind-Value="answerList[count].Text" class="form-control" />
@@ -37,7 +38,6 @@
     private StudentExam StudentExam = new StudentExam();
     private List<Question> questionList = new List<Question>();
     private List<Answer> answerList = new List<Answer>();
-    private Student Student = new Student();
     public int count = 0;
     [Parameter] public Guid Id { get; set; }
 
@@ -47,6 +47,8 @@
         Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
 
         questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
+        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
         foreach (var quest in questionList)
         {
             if (quest.ExamId != Exam.ExamId)
@@ -56,13 +58,13 @@
         }
 
         StudentExam.ExamId = Exam.ExamId;
-        @*StudentExam.StudentId = Student.StudentId;*@
+        StudentExam.StudentId = Guid.Parse(UserId);
         StudentExam.Mark = 0;
 
         for (int i = 0; i < questionList.Count(); i++)
         {
             Answer answer = new Answer();
-            @*answer.StudentId = Student.StudentId;*@
+            answer.StudentId = Guid.Parse(UserId);
             answer.ExamId = Exam.ExamId;
             answer.Mark = 0;
             answerList.Add(answer);

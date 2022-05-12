@@ -13,7 +13,7 @@ namespace FinalYearProject.Shared
         [Key]
         public Guid SEId { get; set; }
         public Guid ExamId { get; set; }
-        public IdentityUser StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public int Mark { get; set; }
 
         public StudentExam()

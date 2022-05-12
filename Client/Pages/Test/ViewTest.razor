@@ -1,9 +1,10 @@
 ﻿@page "/test/viewtest"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize(Roles = "Administrators")]
+@inject AuthenticationStateProvider _authenticationStateProvider
+@attribute [Authorize(Roles = "Administrators, Teachers")]
 
-<h4>View tests</h4>
+<h4>View your tests</h4>
 
 <div class="table-responsive">
     <table class="table table-hover">
@@ -22,15 +23,6 @@
             {
                 <tr>
                     <td>@exam.ExamName</td>
-                    <td>
-                        @foreach (var teach in Teachers)
-                        {
-                            if (teach.TeacherId == exam.TeacherId)
-                            {
-                                @teach.FirstName @teach.LastName
-                            }
-                        }
-                    </td>
                     <td>@exam.ExamCode</td>
                     <td>@exam.QuestionAmount</td>
                     <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
@@ -50,10 +42,19 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
         try
         {
 
             Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
+            foreach (var ex in Exams)
+            {
+                if (ex.TeacherId != Guid.Parse(UserId))
+                {
+                    Exams.Remove(ex);
+                }
+            }
 
         }
         catch (AccessTokenNotAvailableException exception)

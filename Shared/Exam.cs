@@ -12,7 +12,7 @@ namespace FinalYearProject.Shared
     {
         [Key]
         public Guid ExamId { get; set; }
-        public IdentityUser TeacherId { get; set; }
+        public Guid TeacherId { get; set; }
         public int ExamCode { get; set; }
         public string ExamName { get; set; }
         public int QuestionAmount { get; set; }

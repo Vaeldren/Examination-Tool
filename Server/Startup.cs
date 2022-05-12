@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 
@@ -48,6 +50,9 @@ namespace FinalYearProject.Server
             // Need to do this as it maps "role" to ClaimTypes.Role and causes issues
             System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler
                 .DefaultInboundClaimTypeMap.Remove("role");
+
+            services.AddHttpContextAccessor();
+            services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();

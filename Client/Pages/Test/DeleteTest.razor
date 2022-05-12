@@ -1,5 +1,5 @@
 ﻿@page "/test/deletetest/{Id:guid}"
-@attribute [Authorize(Roles = "Administrators")]
+@attribute [Authorize(Roles = "Administrators, Teachers")]
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
@@ -9,22 +9,17 @@
 <h4>Exam Name</h4>
 <p>@Exam.ExamName</p>
 
-<h4>Assigned teacher</h4>
-@*<p>@Teacher.FirstName @Teacher.LastName </p>*@
-
 <button class="btn btn-danger" @onclick="DeleteExam">Delete</button>
 
 @code{
     [Parameter] public Guid Id { get; set; }
     private Exam Exam { get; set; } = new Exam();
-    @*private Teacher Teacher { get; set; } = new Teacher();*@
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
-            @*Teacher = await Http.GetFromJsonAsync<Teacher>($"/api/Teachers/{Exam.TeacherId}");*@
         }
         catch (AccessTokenNotAvailableException exception)
         {

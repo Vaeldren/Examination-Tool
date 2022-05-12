@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Student\" />
     <Folder Include="Pages\StudentExam\" />
   </ItemGroup>
 

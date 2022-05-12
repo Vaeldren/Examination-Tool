@@ -1,16 +1,16 @@
-﻿@page "/test/createtest"
+﻿@page "/student/entercode"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize(Roles = "Administrators, Teachers")]
+@attribute [Authorize(Roles = "Administrators, Students")]
 
 <h5>Create a test</h5>
 <br />
 
-<EditForm Model="Exam" OnSubmit="buttonSubmit" >
+<EditForm Model="Exam" OnSubmit="buttonSubmit">
 
     <div class="form-check group">
-        <label class="control-label">Number of questions:</label>
-        <input type="number" @bind-value="questionNum" class="form-control"/>
+        <label class="control-label">Enter exam code:</label>
+        <input type="number" @bind-value="questionNum" class="form-control" />
     </div>
 
     <p></p>
@@ -27,7 +27,7 @@
     {
         try
         {
-            Navigation.NavigateTo($"/test/inputquestion/{questionNum}");
+            Navigation.NavigateTo($"/test/{questionNum}");
         }
         catch (AccessTokenNotAvailableException exception)
         {

@@ -1,5 +1,5 @@
 ﻿@page "/test/edittest/{Id:guid}"
-@attribute [Authorize(Roles = "Administrators")]
+@attribute [Authorize(Roles = "Administrators, Teachers")]
 @inject NavigationManager Navigation
 @inject HttpClient Http
 <h3>Edit Employee</h3>
@@ -13,18 +13,6 @@
         <label class="control-label">Exam name</label>
         <InputText @bind-Value="@Exam.ExamName" class="form-control" />
         <ValidationMessage For="@(() => Exam.ExamName)" />
-    </div>
-    <br />
-    <div class="form-check group">
-        <label class="control-label">Exam creator</label>
-        <InputSelect @bind-Value="@Exam.TeacherId" class="form-control">
-            <option>-------</option>
-            @foreach (var teach in teachers)
-            {
-                <option value="@teach.TeacherId">@teach.FirstName @teach.LastName</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(() => Exam.TeacherId)" />
     </div>
     <br />
     <div class="form-check group">
@@ -72,7 +60,6 @@
 @code {
     private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
-    private List<Teacher> teachers = new List<Teacher>();
     [Parameter] public Guid Id { get; set; }
 
 
@@ -81,7 +68,6 @@
         try
         {
             Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
-            teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
             questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
             foreach (var quest in questionList)
             {

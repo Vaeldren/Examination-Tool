@@ -1,6 +1,7 @@
 ﻿@page "/test/inputquestion/{formLength:int}"
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider _authenticationStateProvider
 @attribute [Authorize(Roles = "Administrators, Teachers")]
 
 <h4>Create a test</h4>
@@ -15,19 +16,7 @@
     </div>
     <br />
     <div class="form-check group">
-        <label class="control-label">Exam creator</label>
-        <InputSelect @bind-Value="@Exam.TeacherId" class="form-control">
-            <option>-------</option>
-            @foreach (var teach in teachers)
-            {
-                <option value="@teach.TeacherId">@teach.FirstName @teach.LastName</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(() => Exam.TeacherId)" />
-    </div>
-    <br />
-    <div class="form-check group">
-    <label class="control-label">Exam code: @Exam.ExamCode</label>
+        <label class="control-label">Exam code: @Exam.ExamCode</label>
     </div>
     <br />
     @foreach (var quest in questionList)
@@ -63,17 +52,19 @@
 @code {
     private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
-    private List<Teacher> teachers = new List<Teacher>();
+    @*private List<Teacher> teachers = new List<Teacher>();*@
+
     [Parameter] public int formLength { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
+        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
         Random code = new Random();
-        Exam.ExamId = Guid.NewGuid();
+        Exam.TeacherId = Guid.Parse(UserId);
         Exam.ExamCode = code.Next(1000000, 9999999);
-        teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
-        for(int i = 0; i < formLength; i++)
+        for (int i = 0; i < formLength; i++)
         {
 
             Question Question = new Question();
@@ -89,6 +80,7 @@
         {
             //stuff everything into exam and then post it
             Exam.QuestionAmount = formLength;
+
             var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
