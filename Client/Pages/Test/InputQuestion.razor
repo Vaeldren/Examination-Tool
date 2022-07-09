@@ -1,8 +1,8 @@
 ﻿@page "/test/inputquestion/{formLength:int}"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@inject AuthenticationStateProvider _authenticationStateProvider
 @attribute [Authorize(Roles = "Administrators, Teachers")]
+@using System.Security.Claims
 
 <h4>Create a test</h4>
 <br />
@@ -27,15 +27,6 @@
             <InputText @bind-Value="@quest.Text" class="form-control" />
             <ValidationMessage For="@(() => quest.Text)" />
             <br />
-            <label class="control-label">Input Type:</label>
-            <InputSelect class="control-label" @bind-Value="@quest.Type">
-                <option>-------</option>
-                <option value="text">Text</option>
-                <option value="image">Image</option>
-            </InputSelect>
-            <ValidationMessage For="@(() => quest.Type)" />
-            <br />
-            <br />
             <label class="control-label">Mark</label>
             <InputNumber @bind-Value="@quest.Mark" class="form-control" />
             <br />
@@ -52,17 +43,17 @@
 @code {
     private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
-    @*private List<Teacher> teachers = new List<Teacher>();*@
-
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
     [Parameter] public int formLength { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
-        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+
         Random code = new Random();
-        Exam.TeacherId = Guid.Parse(UserId);
+
+
+        //Exam.TeacherId = aState.User.Identity.GetUserId());
         Exam.ExamCode = code.Next(1000000, 9999999);
         for (int i = 0; i < formLength; i++)
         {
@@ -79,7 +70,7 @@
         try
         {
             //stuff everything into exam and then post it
-            Exam.QuestionAmount = formLength;
+            Exam.QuestionAmount = questionList.Count();
 
             var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
@@ -89,8 +80,8 @@
             {
                 var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
                 response1.EnsureSuccessStatusCode();
-                var content1 = await response1.Content.ReadAsStringAsync();
-                var project1 = JsonConvert.DeserializeObject<Question>(content1);
+@*                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Question>(content1);*@
 
             }
             Navigation.NavigateTo("/test/createtest");

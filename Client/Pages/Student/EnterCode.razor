@@ -29,14 +29,14 @@
         Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
     }
 
-    private async void buttonSubmit()
+    private void buttonSubmit()
     {
         try
         {
             foreach (var ex in Exams)
             {
                 if (ex.ExamCode == questionNum) {
-                    Navigation.NavigateTo($"/test/taketest/{questionNum}");
+                    Navigation.NavigateTo($"/test/taketest/{ex.ExamId}");
                 }
             }
         }

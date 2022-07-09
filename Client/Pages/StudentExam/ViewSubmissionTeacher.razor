@@ -1,0 +1,85 @@
+﻿@page "/student/viewsubmissionteacher"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider _authenticationStateProvider
+@attribute [Authorize(Roles = "Administrators, Teachers")]
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNet.Identity.EntityFramework;
+
+
+<h4>View your tests</h4>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Exam Name</th>
+                <th>Exam Code</th>
+                <th>Question Total</th>
+                <th>Date Submitted</th>
+                <th>Mark</th>
+@*                <th>Exam Taker</th>*@
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var StudentExam in StudentExams)
+            {
+                if (StudentExam.Status == false)
+                {
+                <tr>
+                    @foreach (var ex in Exams)
+                    {
+
+                        if (ex.ExamId == StudentExam.ExamId)
+                        {
+                            <td>@ex.ExamName</td>
+                            <td>@ex.ExamCode</td>
+                            <td>@ex.QuestionAmount</td>
+                        }
+                    }
+                    <td>@StudentExam.Date.ToShortDateString()</td>
+                    <td>@StudentExam.Mark</td>
+                    @foreach (var per in Persons)
+                    {
+                        <td>@per.FirstName</td>
+@*                        if(StudentExam.StudentId == per.AspNetUserId)
+                        {
+                            <td>@per.FirstName</td>
+                        }*@
+                    }
+                    <td><a class="btn btn-outline-secondary" href="/test/marktest/@StudentExam.SEId">Mark test</a></td>
+                </tr>
+               }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<StudentExam> StudentExams = new List<StudentExam>();
+    private Exam ExamDummy = new Exam();
+    private List<Exam> Exams = new List<Exam>();
+    private List<Person> Persons = new List<Person>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            StudentExams = await Http.GetFromJsonAsync<List<StudentExam>>("/api/StudentExams");
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams/user");
+            Persons = await Http.GetFromJsonAsync<List<Person>>("/api/People");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+}

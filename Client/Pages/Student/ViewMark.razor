@@ -1,0 +1,93 @@
+﻿@page "/test/viewmark/{Id:guid}"
+@attribute [Authorize(Roles = "Administrators, Students")]
+@inject NavigationManager Navigation
+@inject HttpClient Http
+<h3>Mark Test</h3>
+
+<h4>Create a test</h4>
+<br />
+
+<EditForm Model="Exam">
+    <DataAnnotationsValidator />
+    <div class="form-check group">
+        <label class="control-label">@Exam.ExamName</label>
+        <br />
+        <label class="control-label">Exam code: @Exam.ExamCode</label>
+    </div>
+    <br />
+    @foreach (var ans in answerList2)
+    {
+        @foreach (var q in questionList)
+        {
+            if (q.QuestionId == ans.QuestionId)
+            {
+                question = q;
+            }
+        }
+
+        <div class="form-check group">
+            <label class="control-label float-left">Question - @question.Text</label>
+            <label class="control-label float-left">Mark - @question.Mark</label>
+            <br />
+            <br />
+            <label class="control-label">Answer</label>
+            <label class="control-label">@ans.Text</label>
+            <br />
+
+            <label class="control-label">Mark</label>
+            <label class="control-label">@ans.Mark</label>
+            <br />
+
+            <label class="control-label">Comment</label>
+            <label class="control-label">@ans.Comment</label>
+            <br />
+        </div>
+        <br />
+        <br />
+    }
+    <br />
+</EditForm>
+
+@code {
+    public Exam Exam = new Exam();
+    public Question question;
+    private StudentExam StudentExam = new StudentExam();
+    private List<Question> questionList = new List<Question>();
+    private List<Question> questionList2 = new List<Question>();
+    private List<Answer> answerList = new List<Answer>();
+    private List<Answer> answerList2 = new List<Answer>();
+    private int count;
+    [Parameter] public Guid Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            StudentExam = await Http.GetFromJsonAsync<StudentExam>($"/api/StudentExams/{Id}");
+            questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{StudentExam.ExamId}");
+            answerList = await Http.GetFromJsonAsync<List<Answer>>("/api/Answers");
+
+            foreach (var ans in answerList)
+            {
+                //checks
+                if (ans.StudentExamId == StudentExam.SEId) 
+                { 
+                    answerList2.Add(ans);
+                }
+            }
+
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("EXCEPTION EXCEPTION EXCEPTION EXCEPTION EXCEPTION");
+        }
+    }
+
+
+}

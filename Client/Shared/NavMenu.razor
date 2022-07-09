@@ -15,14 +15,7 @@
         <AuthorizeView Roles="Administrators,Teachers">
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="/test/viewtest">
-                    <span class="oi oi-plus" aria-hidden="true"></span> View Tests
-                </NavLink>
-            </li>
-        </AuthorizeView>
-        <AuthorizeView Roles="Administrators,Teachers">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="/test/marktest">
-                    <span class="oi oi-plus" aria-hidden="true"></span> Mark Test
+                    <span class="oi oi-plus" aria-hidden="true"></span> View Created Tests
                 </NavLink>
             </li>
         </AuthorizeView>
@@ -35,8 +28,15 @@
         </AuthorizeView>
         <AuthorizeView Roles="Administrators,Students">
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="/student/entercode">
+                <NavLink class="nav-link" href="/student/viewsubmission">
                     <span class="oi oi-list-rich" aria-hidden="true"></span> View Submissions
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Administrators,Teachers">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="/student/viewsubmissionteacher">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> View Tests To Mark
                 </NavLink>
             </li>
         </AuthorizeView>

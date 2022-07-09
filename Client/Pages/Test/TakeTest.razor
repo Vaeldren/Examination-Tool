@@ -1,7 +1,6 @@
 ﻿@page "/test/taketest/{Id:guid}"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@inject AuthenticationStateProvider _authenticationStateProvider
 @attribute [Authorize(Roles = "Administrators, Students")]
 
 <h4>Take test</h4>
@@ -13,36 +12,38 @@
         <label class="control-label">@Exam.ExamName</label>
     </div>
     <br />
-    @foreach (var quest in questionList)
+    
+    @foreach(var quest in questionList2)
     {
+        var answer = answerList[questionList2.IndexOf(quest)];
+        answer.QuestionId = quest.QuestionId;
         <div class="form-check group">
-            @qtext = $"Question {@count}: {@quest.Text}";
-            <label class="control-label">@qtext</label>
+            <label class="control-label">Question @(questionList2.IndexOf(quest)+1)</label>
             <br />
+            <label class="control-label">@quest.Text</label>
             <br />
-            <InputText @bind-Value="answerList[count].Text" class="form-control" />
-            @answerList[count].QuestionId = quest.QuestionId;
-            <br />
+            <InputText @bind-Value="answer.Text" class="form-control" />
             <label class="control-label">Mark: @quest.Mark</label>
-            @count += 1
             <br />
         </div>
-        <br />
         <br />
     }
     <button type="submit" class="btn btn-primary">
         <i class="fas fa-save"></i> Submit
     </button>
     <br />
+
+
 </EditForm>
 
 @code {
     private Exam Exam = new Exam();
     private StudentExam StudentExam = new StudentExam();
     private List<Question> questionList = new List<Question>();
+    private List<Question> questionList2 = new List<Question>();
     private List<Answer> answerList = new List<Answer>();
-    public int count = 0;
-    private String qtext; 
+    private String qtext;
+
     [Parameter] public Guid Id { get; set; }
 
 
@@ -51,25 +52,23 @@
         Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
 
         questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
-        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+
+
         foreach (var quest in questionList)
         {
-            if (quest.ExamId != Exam.ExamId)
+            if (quest.ExamId == Exam.ExamId)
             {
-                questionList.Remove(quest);
+                questionList2.Add(quest);
             }
         }
 
         StudentExam.ExamId = Exam.ExamId;
-        StudentExam.StudentId = Guid.Parse(UserId);
         StudentExam.Mark = 0;
 
-        for (int i = 0; i < questionList.Count(); i++)
+        for (int i = 0; i < questionList2.Count(); i++)
         {
             Answer answer = new Answer();
-            answer.StudentId = Guid.Parse(UserId);
-            answer.ExamId = Exam.ExamId;
+            answer.StudentExamId = StudentExam.SEId;
             answer.Mark = 0;
             answerList.Add(answer);
         }
@@ -83,7 +82,7 @@
             var response = await Http.PostAsJsonAsync("/api/StudentExams", StudentExam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            var project = JsonConvert.DeserializeObject<Exam>(content);
+            var project = JsonConvert.DeserializeObject<StudentExam>(content);
 
             foreach (var answer in answerList)
             {

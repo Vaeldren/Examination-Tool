@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinalYearProject.Server.Data;
 using FinalYearProject.Shared;
+using Microsoft.AspNetCore.Identity;
+using FinalYearProject.Server.Models;
 
 namespace FinalYearProject.Server.Controllers
 {
@@ -15,13 +17,30 @@ namespace FinalYearProject.Server.Controllers
     public class StudentExamsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
-        public StudentExamsController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public StudentExamsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // GET: api/StudentExams
+        // GET: api/StudentExams/user
+        [HttpGet("user")]
+        public async Task<ActionResult<IEnumerable<StudentExam>>> GetUserStudentExams()
+        {
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            var SE = await _context.StudentExams.ToListAsync();
+            foreach(var i in SE)
+            {
+                
+                if (i.StudentId != Guid.Parse(applicationUser?.Id))
+                {
+                    SE.Remove(i);
+                }
+            }
+            return SE;
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StudentExam>>> GetStudentExams()
         {
@@ -51,7 +70,6 @@ namespace FinalYearProject.Server.Controllers
             {
                 return BadRequest();
             }
-
             _context.Entry(studentExam).State = EntityState.Modified;
 
             try
@@ -78,6 +96,8 @@ namespace FinalYearProject.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentExam>> PostStudentExam(StudentExam studentExam)
         {
+            ApplicationUser applicationUser = await _userManager.GetUserAsync(User);
+            studentExam.StudentId = Guid.Parse(applicationUser?.Id);
             _context.StudentExams.Add(studentExam);
             await _context.SaveChangesAsync();
 

@@ -33,7 +33,7 @@
 </div>
 
 <p>
-    <a class="btn btn-primary" href="/exam/create">Create</a>
+    <a class="btn btn-primary" href="/test/createtest">Create</a>
 </p>
 
 @code {
@@ -41,19 +41,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
         try
         {
 
-            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
-            foreach (var ex in Exams)
-            {
-                if (ex.TeacherId != Guid.Parse(UserId))
-                {
-                    Exams.Remove(ex);
-                }
-            }
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams/user");
+
 
         }
         catch (AccessTokenNotAvailableException exception)

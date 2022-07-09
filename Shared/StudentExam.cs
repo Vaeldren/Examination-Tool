@@ -16,6 +16,9 @@ namespace FinalYearProject.Shared
         public Guid StudentId { get; set; }
         public int? Mark { get; set; }
         public DateTime Date { get; set; }
+        public bool Status { get; set; }
+
+        public string Comment { get; set; }
 
         public StudentExam()
         {

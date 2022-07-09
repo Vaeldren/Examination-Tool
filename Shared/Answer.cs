@@ -12,11 +12,11 @@ namespace FinalYearProject.Shared
     {
         [Key]
         public Guid AnswerId { get; set; }
-        public Guid StudentId { get; set; }
-        public Guid ExamId { get; set; }
+        public Guid StudentExamId { get; set; }
         public Guid QuestionId { get; set; }
         public  string Text { get; set; }
         public int Mark { get; set; }
+        public string Comment { get; set; }
 
         public Answer()
         {

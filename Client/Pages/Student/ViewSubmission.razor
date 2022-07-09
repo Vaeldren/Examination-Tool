@@ -15,45 +15,49 @@
                 <th>Question Total</th>
                 <th>Date Submitted</th>
                 <th>Mark</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var StudentExam in StudentExams)
-            {
-
             <tr>
-                @foreach (var ExamDummy in Exams)
-                {
-                    if (ExamDummy.ExamId == StudentExam.ExamId)
-                    {
-                        <td>@ExamDummy.ExamName</td>
-                        <td>@ExamDummy.ExamCode</td>
-                        <td>@ExamDummy.QuestionAmount</td>
-                        <td>@StudentExam.Date.ToShortDateString()</td>
-                        <td>@StudentExam.Mark</td>
+                @foreach (var StudentExam in StudentExams)
+            {
+                @foreach (var ex in Exams) {
+                        if (ex.ExamId == StudentExam.ExamId) {
+                <td>@ex.ExamName</td>
+                <td>@ex.ExamCode</td>
+                <td>@ex.QuestionAmount</td>
+                        }
                     }
+                <td>@StudentExam.Date.ToShortDateString()</td>
+                @if (StudentExam.Status == true)
+                {
+                <td>@StudentExam.Mark</td>
+
+                }
                 }
             </tr>
-            }
         </tbody>
     </table>
 </div>
 
 @code {
     private List<StudentExam> StudentExams = new List<StudentExam>();
+    private Exam ExamDummy = new Exam();
     private List<Exam> Exams = new List<Exam>();
 
     protected override async Task OnInitializedAsync()
     {
-        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
-        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        Guid UserId = await Http.GetFromJsonAsync<Guid>("/api/ValuesController");
+
         try
         {
 
             StudentExams = await Http.GetFromJsonAsync<List<StudentExam>>("/api/StudentExams");
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
             foreach (var ex in StudentExams)
             {
-                if (ex.StudentId != Guid.Parse(UserId))
+                if (ex.StudentId != UserId)
                 {
                     StudentExams.Remove(ex);
                 }

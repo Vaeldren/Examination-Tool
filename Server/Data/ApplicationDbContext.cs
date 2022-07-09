@@ -26,5 +26,7 @@ namespace FinalYearProject.Server.Data
         {
         }
 
+        public DbSet<FinalYearProject.Shared.Person> Person { get; set; }
+
     }
 }

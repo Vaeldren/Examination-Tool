@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using System.Security.Claims;
 
 namespace FinalYearProject.Server
 {
@@ -59,6 +60,12 @@ namespace FinalYearProject.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.Configure<IdentityOptions>(options =>
+    options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier);
+            // Add MVC services to the services container.
+            services.AddMvc(options => options.EnableEndpointRouting = false);
+            services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,6 +99,17 @@ namespace FinalYearProject.Server
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
+            });
+
+            // IMPORTANT: This session call MUST go before UseMvc()
+            app.UseSession();
+
+            // Add MVC to the request pipeline.
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

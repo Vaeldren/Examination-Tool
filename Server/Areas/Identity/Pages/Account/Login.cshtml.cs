@@ -11,7 +11,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace FinalYearProject.Server.Areas.Identity.Pages
 {
@@ -40,6 +43,7 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
 
         [TempData]
         public string ErrorMessage { get; set; }
+        public string Id { get; private set; }
 
         public class InputModel
         {
@@ -86,6 +90,7 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
