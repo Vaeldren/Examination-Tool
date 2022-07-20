@@ -1,4 +1,4 @@
-﻿@page "/test/deletetest/{Id:guid}"
+﻿@page "/admin/deletetest/{Id:guid}"
 @attribute [Authorize(Roles = "Administrators, Teachers")]
 @inject HttpClient Http
 @inject NavigationManager Navigation
@@ -37,7 +37,7 @@
         {
             var response = await Http.DeleteAsync($"/api/Exams/{Id}");
             response.EnsureSuccessStatusCode();
-            Navigation.NavigateTo("/test/viewtest");
+            Navigation.NavigateTo("/admin/viewtest");
         }
         catch (AccessTokenNotAvailableException exception)
         {

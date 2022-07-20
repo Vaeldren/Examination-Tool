@@ -27,16 +27,17 @@ namespace FinalYearProject.Server.Controllers
 
         // GET: api/People
         [HttpGet]
-        public ActionResult<IEnumerable<Person>> GetPerson()
+        public async Task<ActionResult<IEnumerable<Person>>> GetPerson()
         {
-            List<ApplicationUser> users = _userManager.Users.ToList();
+            List<ApplicationUser> users = await _userManager.Users.ToListAsync();
             List<Person> people = new List<Person>();
 
             foreach (var p in users)
             {
                 Person nPerson = new Person();
                 nPerson.AspNetUserId = Guid.Parse(p.Id);
-                nPerson.FirstName = p.UserName;
+                p.FirstName = p.UserName;
+                nPerson.FirstName = p.FirstName;
                 people.Add(nPerson);
             }
             return people;

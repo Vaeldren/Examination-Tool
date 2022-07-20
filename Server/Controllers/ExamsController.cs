@@ -75,7 +75,14 @@ namespace FinalYearProject.Server.Controllers
             {
                 return BadRequest();
             }
-
+            var sExam = _context.StudentExams.ToList();
+            foreach (var sE in sExam)
+            {
+                if(sE.ExamId == exam.ExamId)
+                {
+                    return NoContent();
+                }
+            }
             _context.Entry(exam).State = EntityState.Modified;
 
             try

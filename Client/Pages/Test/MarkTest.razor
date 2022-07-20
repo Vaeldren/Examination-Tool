@@ -4,7 +4,6 @@
 @inject HttpClient Http
 <h3>Mark Test</h3>
 
-<h4>Create a test</h4>
 <br />
 
 <EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
@@ -28,15 +27,16 @@
         }
 
         <div class="form-check group">
-            <label class="control-label float-left">Question - @question.Text</label>
-            <label class="control-label float-left" >Mark - @question.Mark</label>
+            <label class="control-label">Question - @question.Text</label>
+            <br />
+            <label class="control-label" >Mark Total - @question.Mark</label>
             <br />
             <br />
-            <label class="control-label">Answer</label>
+            <label class="control-label">Answer:</label>
             <label class="control-label">@ans.Text</label>
             <br />
 
-            <label class="control-label">Mark</label>
+            <label class="control-label">Mark:</label>
             <InputNumber @bind-Value="@ans.Mark" class="form-control" />
             <ValidationMessage For="(() => ans.Mark)"/>
             <br />
@@ -105,18 +105,18 @@
     {
         try
         {
-            foreach(var ans in answerList)
+            foreach(var ans in answerList2)
             {
-                count += ans.Mark;
+                count = count + ans.Mark;
             }
 
             StudentExam.Mark = count;
             StudentExam.Status = true;
             //stuff everything into exam and then post it
-            var response = await Http.PutAsJsonAsync($"/api/StudentExams/{StudentExam.ExamId}", StudentExam);
+            var response = await Http.PutAsJsonAsync($"/api/StudentExams/{StudentExam.SEId}", StudentExam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            var project = JsonConvert.DeserializeObject<Exam>(content);
+            var project = JsonConvert.DeserializeObject<StudentExam>(content);
             foreach (var ans in answerList)
             {
                 var response1 = await Http.PutAsJsonAsync($"/api/Answers/{ans.AnswerId}", ans);

@@ -1,4 +1,4 @@
-﻿@page "/test/edittest/{Id:guid}"
+﻿@page "/admin/edittest/{Id:guid}"
 @attribute [Authorize(Roles = "Administrators, Teachers")]
 @inject NavigationManager Navigation
 @inject HttpClient Http
@@ -85,7 +85,7 @@
 
     private void RemoveField()
     {
-        if (questionList.Count > 1)
+        if (questionList2.Count > 1)
         {
             questionList2.RemoveAt(questionList2.Count() - 1);
             StateHasChanged();
@@ -119,7 +119,7 @@
                 var project1 = JsonConvert.DeserializeObject<Question>(content1);
 
             }
-            Navigation.NavigateTo("test/viewtest");
+            Navigation.NavigateTo("admin/viewtest");
         }
         catch (AccessTokenNotAvailableException exception)
         {

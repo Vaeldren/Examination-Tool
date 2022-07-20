@@ -1,5 +1,5 @@
-﻿@page "/test/viewmark/{Id:guid}"
-@attribute [Authorize(Roles = "Administrators, Students")]
+﻿@page "/admin/viewmark/{Id:guid}"
+@attribute [Authorize(Roles = "Administrators")]
 @inject NavigationManager Navigation
 @inject HttpClient Http
 <h3>Mark Test</h3>
@@ -31,11 +31,11 @@
             <label class="control-label">Mark - @question.Mark</label>
             <br />
             <br />
-            <label class="control-label">Answer</label>
+            <label class="control-label">Answer:</label>
             <label class="control-label">@ans.Text</label>
             <br />
 
-            <label class="control-label">Mark</label>
+            <label class="control-label">Mark:</label>
             <label class="control-label">@ans.Mark</label>
             <br />
 

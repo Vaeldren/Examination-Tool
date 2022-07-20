@@ -41,14 +41,6 @@
                     }
                     <td>@StudentExam.Date.ToShortDateString()</td>
                     <td>@StudentExam.Mark</td>
-                    @foreach (var per in Persons)
-                    {
-                        <td>@per.FirstName</td>
-@*                        if(StudentExam.StudentId == per.AspNetUserId)
-                        {
-                            <td>@per.FirstName</td>
-                        }*@
-                    }
                     <td><a class="btn btn-outline-secondary" href="/test/marktest/@StudentExam.SEId">Mark test</a></td>
                 </tr>
                }
@@ -70,7 +62,7 @@
         {
 
             StudentExams = await Http.GetFromJsonAsync<List<StudentExam>>("/api/StudentExams");
-            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams/user");
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
             Persons = await Http.GetFromJsonAsync<List<Person>>("/api/People");
         }
         catch (AccessTokenNotAvailableException exception)

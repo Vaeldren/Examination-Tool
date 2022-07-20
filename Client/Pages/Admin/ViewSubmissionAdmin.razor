@@ -1,8 +1,8 @@
-﻿@page "/student/viewsubmission"
+﻿@page "/admin/viewsubmission"
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider _authenticationStateProvider
-@attribute [Authorize(Roles = "Administrators, Students")]
+@attribute [Authorize(Roles = "Administrators")]
 
 <h4>View your tests</h4>
 
@@ -19,34 +19,27 @@
             </tr>
         </thead>
         <tbody>
-
             @foreach (var StudentExam in StudentExams)
             {
-                <tr>
-                    @foreach (var ex in Exams)
+            <tr>
+                @foreach (var ex in Exams)
+                {
+                    if (ex.ExamId == StudentExam.ExamId)
                     {
-                        if (ex.ExamId == StudentExam.ExamId)
-                        {
-                            ex1 = ex;
-                        }
+                        ex1 = ex;
                     }
-                    <td>@ex1.ExamName</td>
-                    <td>@ex1.ExamCode</td>
-                    <td>@ex1.QuestionAmount</td>
-                    <td>@StudentExam.Date.ToShortDateString()</td>
-                    @if (StudentExam.Status == true)
-                    {
-                        <td>@StudentExam.Mark</td>
-                        <td><a class="btn btn-outline-secondary" href="/test/viewmark/@StudentExam.SEId">View result</a></td>
-                    }
-                    else
-                    {
-                        <td></td>
-                        <td></td>
-                    }
-                    </tr>
-                    }
-
+                }
+                <td>@ex1.ExamName</td>
+                <td>@ex1.ExamCode</td>
+                <td>@ex1.QuestionAmount</td>
+                <td>@StudentExam.Date.ToShortDateString()</td>
+                @if (StudentExam.Status == true)
+                {
+                    <td>@StudentExam.Mark</td>
+                    <td><a class="btn btn-outline-secondary" href="/admin/viewmark/@StudentExam.SEId">View test</a></td>
+                }
+            </tr>
+                }
             </tbody>
     </table>
 </div>
@@ -63,7 +56,7 @@
         try
         {
 
-            StudentExams = await Http.GetFromJsonAsync<List<StudentExam>>("/api/StudentExams/user");
+            StudentExams = await Http.GetFromJsonAsync<List<StudentExam>>("/api/StudentExams");
             Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
 
         }

@@ -30,15 +30,16 @@ namespace FinalYearProject.Server.Controllers
         {
             IdentityUser applicationUser = await _userManager.GetUserAsync(User);
             var SE = await _context.StudentExams.ToListAsync();
+            var SEE = new List<StudentExam>();
             foreach(var i in SE)
             {
                 
-                if (i.StudentId != Guid.Parse(applicationUser?.Id))
+                if (i.StudentId == Guid.Parse(applicationUser?.Id))
                 {
-                    SE.Remove(i);
+                    SEE.Add(i);
                 }
             }
-            return SE;
+            return SEE;
         }
 
         [HttpGet]

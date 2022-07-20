@@ -104,10 +104,10 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
                         await _roleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
                     }
 
-                    var RoleResult2 = await _roleManager.FindByNameAsync("Users");
+                    var RoleResult2 = await _roleManager.FindByNameAsync("Students");
                     if (RoleResult2 == null)
                     {
-                        await _roleManager.CreateAsync(new IdentityRole("Users"));
+                        await _roleManager.CreateAsync(new IdentityRole("Students"));
                     }
 
                     var RoleResult3 = await _roleManager.FindByNameAsync("Teachers");
@@ -132,8 +132,8 @@ namespace FinalYearProject.Server.Areas.Identity.Pages
 
                     else
                     {
-                        // Put admin in Administrator role
-                        await _userManager.AddToRoleAsync(user, "Users");
+                        // Put admin in User role
+                        await _userManager.AddToRoleAsync(user, "Students");
                     }
 
 
