@@ -1,5 +1,142 @@
-﻿<h3>MarkTest</h3>
+﻿@page "/test/marktest/{Id:guid}"
+@attribute [Authorize(Roles = "Administrators, Teachers")]
+@inject NavigationManager Navigation
+@inject HttpClient Http
+<h3>Mark Test</h3>
+
+<br />
+
+<EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="form-check group">
+        <label class="control-label">@Exam.ExamName</label>
+        <br />
+        <label class="control-label">Exam code: @Exam.ExamCode</label>
+@*        <br />
+        <label class="control-label">Exam taker: @person.FirstName</label>*@
+    </div>
+    <br />
+    @foreach (var ans in answerList2)
+    {
+        @foreach(var q in questionList)
+        {
+            if(q.QuestionId == ans.QuestionId)
+            {
+                question = q;
+            }
+        }
+
+        <div class="form-check group">
+            <label class="control-label">Question - @question.Text</label>
+            <br />
+            <label class="control-label" >Mark Total - @question.Mark</label>
+            <br />
+            <br />
+            <label class="control-label">Answer:</label>
+            <label class="control-label">@ans.Text</label>
+            <br />
+
+            <label class="control-label">Mark:</label>
+            <InputNumber @bind-Value="@ans.Mark" class="form-control" />
+            <ValidationMessage For="(() => ans.Mark)"/>
+            <br />
+
+            <label class="control-label">Comment</label>
+            <InputText @bind-Value="@ans.Comment" class="form-control" />
+            <ValidationMessage For="(() => ans.Comment)"/>
+            <br />
+        </div>
+        <br />
+        <br />
+    }
+    <br />
+    <br />
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Submit
+    </button>
+    <br />
+</EditForm>
 
 @code {
+    public Exam Exam = new Exam();
+    public Question question;
+    public Person person;
+    private StudentExam StudentExam = new StudentExam();
+    private List<Question> questionList = new List<Question>();
+    private List<Question> questionList2 = new List<Question>();
+    private List<Answer> answerList = new List<Answer>();
+    private List<Answer> answerList2 = new List<Answer>();
+    private int count;
+    [Parameter] public Guid Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            StudentExam = await Http.GetFromJsonAsync<StudentExam>($"/api/StudentExams/{Id}");
+            questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
+            person = await Http.GetFromJsonAsync<Person>($"/api/People/{StudentExam.StudentId}");
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{StudentExam.ExamId}");
+            answerList = await Http.GetFromJsonAsync<List<Answer>>("/api/Answers");
+
+            foreach (var ans in answerList)
+            {
+                //checks
+                if (ans.StudentExamId == StudentExam.SEId)
+                    { 
+                        answerList2.Add(ans);
+                    }
+            }
+
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("EXCEPTION EXCEPTION EXCEPTION EXCEPTION EXCEPTION");
+        }
+    }
+
+
+    private async void HandleValidSubmit()
+    {
+        try
+        {
+            foreach(var ans in answerList2)
+            {
+                count = count + ans.Mark;
+            }
+
+            StudentExam.Mark = count;
+            StudentExam.Status = true;
+            //stuff everything into exam and then post it
+            var response = await Http.PutAsJsonAsync($"/api/StudentExams/{StudentExam.SEId}", StudentExam);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var project = JsonConvert.DeserializeObject<StudentExam>(content);
+            foreach (var ans in answerList)
+            {
+                var response1 = await Http.PutAsJsonAsync($"/api/Answers/{ans.AnswerId}", ans);
+                response1.EnsureSuccessStatusCode();
+                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Answer>(content1);
+
+            }
+            Navigation.NavigateTo("/");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+
+    }
 
 }

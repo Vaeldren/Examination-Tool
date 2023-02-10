@@ -1,7 +1,7 @@
 ﻿@page "/test/createtest"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Administrators, Teachers")]
 
 <h5>Create a test</h5>
 <br />
@@ -27,7 +27,7 @@
     {
         try
         {
-            Navigation.NavigateTo($"/inputquestion/{questionNum}");
+            Navigation.NavigateTo($"/test/inputquestion/{questionNum}");
         }
         catch (AccessTokenNotAvailableException exception)
         {

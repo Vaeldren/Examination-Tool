@@ -1,0 +1,51 @@
+﻿@page "/admin/deletetest/{Id:guid}"
+@attribute [Authorize(Roles = "Administrators, Teachers")]
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+
+<h1> Please confirm you want to delete the following exam?</h1>
+
+<h4>Exam Name</h4>
+<p>@Exam.ExamName</p>
+
+<button class="btn btn-danger" @onclick="DeleteExam">Delete</button>
+
+@code{
+    [Parameter] public Guid Id { get; set; }
+    private Exam Exam { get; set; } = new Exam();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    private async void DeleteExam()
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"/api/Exams/{Id}");
+            response.EnsureSuccessStatusCode();
+            Navigation.NavigateTo("/admin/viewtest");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+}

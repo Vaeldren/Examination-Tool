@@ -1,10 +1,8 @@
 ﻿@page "/test/edittest/{Id:guid}"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Administrators, Teachers")]
 @inject NavigationManager Navigation
 @inject HttpClient Http
-<h3>Edit Employee</h3>
-
-<h4>Create a test</h4>
+<h3>Edit test</h3>
 <br />
 <EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -16,37 +14,16 @@
     </div>
     <br />
     <div class="form-check group">
-        <label class="control-label">Exam creator</label>
-        <InputSelect @bind-Value="@Exam.TeacherId" class="form-control">
-            <option>-------</option>
-            @foreach (var teach in teachers)
-            {
-                <option value="@teach.TeacherId">@teach.FirstName @teach.LastName</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(() => Exam.TeacherId)" />
-    </div>
-    <br />
-    <div class="form-check group">
         <label class="control-label">Exam code: @Exam.ExamCode</label>
     </div>
     <br />
-    @foreach (var quest in questionList)
+    @foreach (var quest in questionList2)
     {
 
         <div class="form-check group">
             <label class="control-label">Question</label>
             <InputText @bind-Value="@quest.Text" class="form-control" />
             <ValidationMessage For="@(() => quest.Text)" />
-            <br />
-            <label class="control-label">Input Type:</label>
-            <InputSelect class="control-label" @bind-Value="@quest.Type">
-                <option>-------</option>
-                <option value="text">Text</option>
-                <option value="image">Image</option>
-            </InputSelect>
-            <ValidationMessage For="@(() => quest.Type)" />
-            <br />
             <br />
             <label class="control-label">Mark</label>
             <InputNumber @bind-Value="@quest.Mark" class="form-control" />
@@ -72,7 +49,7 @@
 @code {
     private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
-    private List<Teacher> teachers = new List<Teacher>();
+    private List<Question> questionList2 = new List<Question>();
     [Parameter] public Guid Id { get; set; }
 
 
@@ -81,13 +58,16 @@
         try
         {
             Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
-            teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
             questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
-            foreach (var quest in questionList)
+
+            foreach (Question quest in questionList)
             {
-                if(quest.ExamId != Exam.ExamId)
+                if (quest.ExamId.Equals(Exam.ExamId))
                 {
-                    questionList.Remove(quest);
+                    questionList2.Add(quest);
+                }
+                else
+                { 
                 }
             }
 
@@ -107,7 +87,7 @@
     {
         if (questionList.Count > 1)
         {
-            questionList.RemoveAt(questionList.Count() - 1);
+            questionList2.RemoveAt(questionList2.Count() - 1);
             StateHasChanged();
         }
     }
@@ -117,7 +97,7 @@
         Question Question = new Question();
         Question.QuestionId = Guid.NewGuid();
         Question.ExamId = Exam.ExamId;
-        questionList.Add(Question);
+        questionList2.Add(Question);
         StateHasChanged();
     }
 
@@ -125,7 +105,7 @@
     {
         try
         {
-            Exam.QuestionAmount = questionList.Count();
+            Exam.QuestionAmount = questionList2.Count();
             //stuff everything into exam and then post it
             var response = await Http.PutAsJsonAsync($"/api/Exams/{Exam.ExamId}", Exam);
             response.EnsureSuccessStatusCode();

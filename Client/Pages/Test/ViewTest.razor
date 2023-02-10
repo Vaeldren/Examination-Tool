@@ -1,16 +1,16 @@
 ﻿@page "/test/viewtest"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize]
+@inject AuthenticationStateProvider _authenticationStateProvider
+@attribute [Authorize(Roles = "Administrators, Teachers")]
 
-<h4>View tests</h4>
+<h4>View your tests</h4>
 
 <div class="table-responsive">
     <table class="table table-hover">
         <thead class="thead-dark">
             <tr>
                 <th>Exam Name</th>
-                <th>Teacher</th>
                 <th>Exam Code</th>
                 <th>Question Total</th>
                 <th></th>
@@ -20,41 +20,32 @@
         <tbody>
             @foreach (var exam in Exams)
             {
-            <tr>
-                <td>@exam.ExamName</td>
-                <td>
-                    @foreach (var teach in Teachers)
-                    {
-                        if (teach.TeacherId == exam.TeacherId)
-                        {
-                            @teach.FirstName  @teach.LastName
-                        }
-                    }
-                </td>
-                <td>@exam.ExamCode</td>
-                <td>@exam.QuestionAmount</td>
-                <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
-                <td><a class="btn btn-outline-danger" href="/test/deletetest/@exam.ExamId">Delete</a></td>
-            </tr>
+                <tr>
+                    <td>@exam.ExamName</td>
+                    <td>@exam.ExamCode</td>
+                    <td>@exam.QuestionAmount</td>
+                    <td><a class="btn btn-outline-secondary" href="/test/edittest/@exam.ExamId">Edit</a></td>
+                    <td><a class="btn btn-outline-danger" href="/test/deletetest/@exam.ExamId">Delete</a></td>
+                </tr>
             }
         </tbody>
     </table>
 </div>
 
 <p>
-    <a class="btn btn-primary" href="/exam/create">Create</a>
+    <a class="btn btn-primary" href="/test/createtest">Create</a>
 </p>
 
 @code {
-    private List<Teacher> Teachers = new List<Teacher>();
     private List<Exam> Exams = new List<Exam>();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
-            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
+
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams/user");
+
 
         }
         catch (AccessTokenNotAvailableException exception)

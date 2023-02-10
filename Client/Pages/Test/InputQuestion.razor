@@ -1,7 +1,8 @@
 ﻿@page "/test/inputquestion/{formLength:int}"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Administrators, Teachers")]
+@using System.Security.Claims
 
 <h4>Create a test</h4>
 <br />
@@ -15,19 +16,7 @@
     </div>
     <br />
     <div class="form-check group">
-        <label class="control-label">Exam creator</label>
-        <InputSelect @bind-Value="@Exam.TeacherId" class="form-control">
-            <option>-------</option>
-            @foreach (var teach in teachers)
-            {
-                <option value="@teach.TeacherId">@teach.FirstName @teach.LastName</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(() => Exam.TeacherId)" />
-    </div>
-    <br />
-    <div class="form-check group">
-    <label class="control-label">Exam code: @Exam.ExamCode</label>
+        <label class="control-label">Exam code: @Exam.ExamCode</label>
     </div>
     <br />
     @foreach (var quest in questionList)
@@ -37,15 +26,6 @@
             <label class="control-label">Q  @questionList.IndexOf(quest)</label>
             <InputText @bind-Value="@quest.Text" class="form-control" />
             <ValidationMessage For="@(() => quest.Text)" />
-            <br />
-            <label class="control-label">Input Type:</label>
-            <InputSelect class="control-label" @bind-Value="@quest.Type">
-                <option>-------</option>
-                <option value="text">Text</option>
-                <option value="image">Image</option>
-            </InputSelect>
-            <ValidationMessage For="@(() => quest.Type)" />
-            <br />
             <br />
             <label class="control-label">Mark</label>
             <InputNumber @bind-Value="@quest.Mark" class="form-control" />
@@ -63,17 +43,19 @@
 @code {
     private Exam Exam = new Exam();
     private List<Question> questionList = new List<Question>();
-    private List<Teacher> teachers = new List<Teacher>();
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
     [Parameter] public int formLength { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
+
         Random code = new Random();
-        Exam.ExamId = Guid.NewGuid();
+
+
+        //Exam.TeacherId = aState.User.Identity.GetUserId());
         Exam.ExamCode = code.Next(1000000, 9999999);
-        teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
-        for(int i = 0; i < formLength; i++)
+        for (int i = 0; i < formLength; i++)
         {
 
             Question Question = new Question();
@@ -88,7 +70,8 @@
         try
         {
             //stuff everything into exam and then post it
-            Exam.QuestionAmount = formLength;
+            Exam.QuestionAmount = questionList.Count();
+
             var response = await Http.PostAsJsonAsync("/api/Exams", Exam);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
@@ -97,11 +80,11 @@
             {
                 var response1 = await Http.PostAsJsonAsync($"/api/Questions", quest);
                 response1.EnsureSuccessStatusCode();
-                var content1 = await response1.Content.ReadAsStringAsync();
-                var project1 = JsonConvert.DeserializeObject<Question>(content1);
+@*                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Question>(content1);*@
 
             }
-            Navigation.NavigateTo("/test/createtest");
+            Navigation.NavigateTo("/");
         }
         catch (AccessTokenNotAvailableException exception)
         {

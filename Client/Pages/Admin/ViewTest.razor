@@ -1,0 +1,57 @@
+﻿@page "/admin/viewtest"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider _authenticationStateProvider
+@attribute [Authorize(Roles = "Administrators")]
+
+<h4>View your tests</h4>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Exam Name</th>
+                <th>Exam Code</th>
+                <th>Question Total</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var exam in Exams)
+            {
+                <tr>
+                    <td>@exam.ExamName</td>
+                    <td>@exam.ExamCode</td>
+                    <td>@exam.QuestionAmount</td>
+                    <td><a class="btn btn-outline-secondary" href="/admin/edittest/@exam.ExamId">Edit</a></td>
+                    <td><a class="btn btn-outline-danger" href="/admin/deletetest/@exam.ExamId">Delete</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<Exam> Exams = new List<Exam>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
+
+
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+}

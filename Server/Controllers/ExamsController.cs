@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinalYearProject.Server.Data;
 using FinalYearProject.Shared;
+using Microsoft.AspNetCore.Identity;
+using FinalYearProject.Server.Models;
 
 namespace FinalYearProject.Server.Controllers
 {
@@ -14,18 +16,40 @@ namespace FinalYearProject.Server.Controllers
     [ApiController]
     public class ExamsController : ControllerBase
     {
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
 
-        public ExamsController(ApplicationDbContext context)
+        public ExamsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Exams
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Exam>>> GetExams()
         {
+
             return await _context.Exams.ToListAsync();
+
+        }
+
+        // GET: api/Exams/user
+
+        [HttpGet("user")]
+        public async Task<ActionResult<IEnumerable<Exam>>> GetUserExams()
+        {
+            ApplicationUser applicationUser = await _userManager.GetUserAsync(User);
+            var E = await _context.Exams.ToListAsync();
+            List<Exam> NE = new List<Exam>();
+            foreach (var i in E)
+            {
+                if (i.TeacherId == Guid.Parse(applicationUser?.Id))
+                {
+                    NE.Add(i);
+                }
+            }
+            return NE;
         }
 
         // GET: api/Exams/5
@@ -51,7 +75,14 @@ namespace FinalYearProject.Server.Controllers
             {
                 return BadRequest();
             }
-
+            var sExam = _context.StudentExams.ToList();
+            foreach (var sE in sExam)
+            {
+                if(sE.ExamId == exam.ExamId)
+                {
+                    return NoContent();
+                }
+            }
             _context.Entry(exam).State = EntityState.Modified;
 
             try
@@ -78,6 +109,8 @@ namespace FinalYearProject.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Exam>> PostExam(Exam exam)
         {
+            ApplicationUser applicationUser = await _userManager.GetUserAsync(User);
+            exam.TeacherId = Guid.Parse(applicationUser?.Id);
             _context.Exams.Add(exam);
             await _context.SaveChangesAsync();
 
@@ -92,6 +125,16 @@ namespace FinalYearProject.Server.Controllers
             if (exam == null)
             {
                 return NotFound();
+            }
+
+
+            var sExam =  _context.StudentExams.ToList();
+            foreach (var i in sExam)
+            {
+                if(i.ExamId == exam.ExamId)
+                {
+                    _context.StudentExams.Remove(i);
+                }
             }
 
             _context.Exams.Remove(exam);

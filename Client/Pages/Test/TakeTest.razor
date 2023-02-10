@@ -1,89 +1,106 @@
 ﻿@page "/test/taketest/{Id:guid}"
-    @inject HttpClient Http
-    @inject NavigationManager Navigation
-    @attribute [Authorize]
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@attribute [Authorize(Roles = "Administrators, Students")]
 
-    <h4>Take test</h4>
-    <br/>
-    <EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
-        <DataAnnotationsValidator />
+<h4>Take test</h4>
+<br />
+<EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
 
+    <div class="form-check group">
+        <label class="control-label">@Exam.ExamName</label>
+    </div>
+    <br />
+    
+    @foreach(var quest in questionList2)
+    {
+        var answer = answerList[questionList2.IndexOf(quest)];
+        answer.QuestionId = quest.QuestionId;
         <div class="form-check group">
-            <label class="control-label">@Exam.ExamName</label>
+            <label class="control-label">Question @(questionList2.IndexOf(quest)+1)</label>
+            <br />
+            <label class="control-label">@quest.Text</label>
+            <br />
+            <InputText @bind-Value="answer.Text" class="form-control" />
+            <label class="control-label">Mark: @quest.Mark</label>
+            <br />
         </div>
         <br />
-        @foreach (var quest in questionList)
+    }
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Submit
+    </button>
+    <br />
+
+
+</EditForm>
+
+@code {
+    private Exam Exam = new Exam();
+    private StudentExam StudentExam = new StudentExam();
+    private List<Question> questionList = new List<Question>();
+    private List<Question> questionList2 = new List<Question>();
+    private List<Answer> answerList = new List<Answer>();
+    private String qtext;
+
+    [Parameter] public Guid Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
+
+        questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
+
+
+        foreach (var quest in questionList)
         {
-            <div class="form-check group">
-                <label class="control-label">Question</label>
-                <br />
-                <br />
-                <InputText @bind-Value="answerList[count].Text" class="form-control" />
-                @answerList[count].QuestionId = quest.QuestionId;
-                @count += 1
-                <br />
-            </div>
-            <br />
-            <br />
-        }
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> Submit
-        </button>
-        <br />
-    </EditForm>
-
-    @code {
-        private Exam Exam = new Exam();
-        private StudentExam StudentExam = new StudentExam();
-        private List<Question> questionList = new List<Question>();
-        private List<Answer> answerList = new List<Answer>();
-        private Student Student = new Student();
-        public int count = 0;
-        [Parameter] public int formLength { get; set; }
-
-
-        protected override async Task OnInitializedAsync()
-        {
-            StudentExam.ExamId = Exam.ExamId;
-            StudentExam.StudentId = Student.StudentId;
-            StudentExam.Mark = 0;
-
-            for (int i = 0; i < formLength; i++)
+            if (quest.ExamId == Exam.ExamId)
             {
-                Answer answer = new Answer();
-                answer.StudentId = Student.StudentId;
-                answer.ExamId = Exam.ExamId;
-                answer.Mark = 0;
-                answerList.Add(answer);
+                questionList2.Add(quest);
             }
         }
 
-        private async void HandleValidSubmit()
+        StudentExam.ExamId = Exam.ExamId;
+        StudentExam.Mark = 0;
+
+        for (int i = 0; i < questionList2.Count(); i++)
         {
-            try
-            {
-                var response = await Http.PostAsJsonAsync("/api/StudentExams", StudentExam);
-                response.EnsureSuccessStatusCode();
-                var content = await response.Content.ReadAsStringAsync();
-                var project = JsonConvert.DeserializeObject<Exam>(content);
-
-                foreach (var answer in answerList)
-                {
-                    var response1 = await Http.PostAsJsonAsync($"/api/Answers", answer);
-                    response1.EnsureSuccessStatusCode();
-                    var content1 = await response1.Content.ReadAsStringAsync();
-                    var project1 = JsonConvert.DeserializeObject<Answer>(content1);
-
-                }
-                Navigation.NavigateTo("/");
-            }
-            catch (AccessTokenNotAvailableException exception)
-            {
-                exception.Redirect();
-            }
-            catch (Exception e)
-            {
-            
-            }
+            Answer answer = new Answer();
+            answer.StudentExamId = StudentExam.SEId;
+            answer.Mark = 0;
+            answerList.Add(answer);
         }
     }
+
+    private async void HandleValidSubmit()
+    {
+        try
+        {
+            StudentExam.Date = DateTime.Now;
+            var response = await Http.PostAsJsonAsync("/api/StudentExams", StudentExam);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var project = JsonConvert.DeserializeObject<StudentExam>(content);
+
+            foreach (var answer in answerList)
+            {
+                var response1 = await Http.PostAsJsonAsync($"/api/Answers", answer);
+                response1.EnsureSuccessStatusCode();
+                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Answer>(content1);
+
+            }
+            Navigation.NavigateTo("/");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+}

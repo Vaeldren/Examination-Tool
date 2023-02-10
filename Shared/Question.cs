@@ -13,7 +13,11 @@ namespace FinalYearProject.Shared
         public  Guid QuestionId { get; set; }
         public Guid ExamId { get; set; }
         public string Text { get; set; }
-        public string Type { get; set; }
         public int Mark { get; set; }
+
+        public Question()
+        {
+            QuestionId = Guid.NewGuid();
+        }
     }
 }

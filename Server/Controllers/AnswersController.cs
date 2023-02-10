@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinalYearProject.Shared;
 using FinalYearProject.Server.Data;
+using Microsoft.AspNetCore.Identity;
+using FinalYearProject.Server.Models;
 
 namespace FinalYearProject.Server.Controllers
 {
@@ -15,10 +17,12 @@ namespace FinalYearProject.Server.Controllers
     public class AnswersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AnswersController(ApplicationDbContext context)
+        public AnswersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Answers

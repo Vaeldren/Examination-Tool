@@ -1,0 +1,54 @@
+﻿@page "/student/entercode"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@attribute [Authorize(Roles = "Administrators, Students")]
+
+<h5>Take a test</h5>
+<br />
+
+<EditForm Model="Exam" OnSubmit="buttonSubmit">
+
+    <div class="form-check group">
+        <label class="control-label">Enter exam code:</label>
+        <input type="number" @bind-value="questionNum" class="form-control" />
+    </div>
+
+    <p></p>
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Create question fields
+    </button>
+</EditForm>
+
+@code {
+    private List<Exam> Exams { get; set; } = new List<Exam>();
+    private Exam Exam { get; set; } = new Exam();
+    private int questionNum;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Exams = await Http.GetFromJsonAsync<List<Exam>>("/api/Exams");
+    }
+
+    private void buttonSubmit()
+    {
+        try
+        {
+            foreach (var ex in Exams)
+            {
+                if (ex.ExamCode == questionNum) {
+                    Navigation.NavigateTo($"/test/taketest/{ex.ExamId}");
+                }
+            }
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+
+}

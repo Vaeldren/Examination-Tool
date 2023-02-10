@@ -1,0 +1,136 @@
+﻿@page "/admin/edittest/{Id:guid}"
+@attribute [Authorize(Roles = "Administrators, Teachers")]
+@inject NavigationManager Navigation
+@inject HttpClient Http
+<h3>Edit test</h3>
+<br />
+<EditForm Model="Exam" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-check group">
+        <label class="control-label">Exam name</label>
+        <InputText @bind-Value="@Exam.ExamName" class="form-control" />
+        <ValidationMessage For="@(() => Exam.ExamName)" />
+    </div>
+    <br />
+    <div class="form-check group">
+        <label class="control-label">Exam code: @Exam.ExamCode</label>
+    </div>
+    <br />
+    @foreach (var quest in questionList2)
+    {
+
+        <div class="form-check group">
+            <label class="control-label">Question</label>
+            <InputText @bind-Value="@quest.Text" class="form-control" />
+            <ValidationMessage For="@(() => quest.Text)" />
+            <br />
+            <label class="control-label">Mark</label>
+            <InputNumber @bind-Value="@quest.Mark" class="form-control" />
+            <br />
+        </div>
+        <br />
+        <br />
+    }
+    <button type="button" class="btn btn-primary" style="float:left;" @onclick="AddField">
+        <i class="fas fa-save"></i> Add Question
+    </button>
+    <button type="button" class="btn btn-primary" style="float:right" @onclick="RemoveField">
+        <i class="fas fa-save"></i> Remove Question
+    </button>
+    <br />
+    <br />
+    <button type="submit" class="btn btn-primary" style="float:left">
+        <i class="fas fa-save"></i> Submit
+    </button>
+    <br />
+</EditForm>
+
+@code {
+    private Exam Exam = new Exam();
+    private List<Question> questionList = new List<Question>();
+    private List<Question> questionList2 = new List<Question>();
+    [Parameter] public Guid Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Exam = await Http.GetFromJsonAsync<Exam>($"/api/Exams/{Id}");
+            questionList = await Http.GetFromJsonAsync<List<Question>>("/api/Questions");
+
+            foreach (Question quest in questionList)
+            {
+                if (quest.ExamId.Equals(Exam.ExamId))
+                {
+                    questionList2.Add(quest);
+                }
+                else
+                { 
+                }
+            }
+
+
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    private void RemoveField()
+    {
+        if (questionList2.Count > 1)
+        {
+            questionList2.RemoveAt(questionList2.Count() - 1);
+            StateHasChanged();
+        }
+    }
+
+    private void AddField()
+    {
+        Question Question = new Question();
+        Question.QuestionId = Guid.NewGuid();
+        Question.ExamId = Exam.ExamId;
+        questionList2.Add(Question);
+        StateHasChanged();
+    }
+
+    private async void HandleValidSubmit()
+    {
+        try
+        {
+            Exam.QuestionAmount = questionList2.Count();
+            //stuff everything into exam and then post it
+            var response = await Http.PutAsJsonAsync($"/api/Exams/{Exam.ExamId}", Exam);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var project = JsonConvert.DeserializeObject<Exam>(content);
+            foreach (var quest in questionList)
+            {
+                var response1 = await Http.PutAsJsonAsync($"/api/Questions/{quest.QuestionId}", quest);
+                response1.EnsureSuccessStatusCode();
+                var content1 = await response1.Content.ReadAsStringAsync();
+                var project1 = JsonConvert.DeserializeObject<Question>(content1);
+
+            }
+            Navigation.NavigateTo("admin/viewtest");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+
+        }
+
+
+    }
+
+}
