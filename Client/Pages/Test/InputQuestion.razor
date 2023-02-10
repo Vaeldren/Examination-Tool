@@ -71,8 +71,6 @@
     {
         Random code = new Random();
         Exam.ExamId = Guid.NewGuid();
-        //Exam.TeacherId = aState.User.Identity.GetUserId());
-        //Exam.TeacherId = aState.User.Identity.GetUserId());
         Exam.ExamCode = code.Next(1000000, 9999999);
         teachers = await Http.GetFromJsonAsync<List<Teacher>>("/api/Teachers");
         for(int i = 0; i < formLength; i++)
